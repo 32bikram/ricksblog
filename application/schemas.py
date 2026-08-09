@@ -16,7 +16,7 @@ class ReturnOwner(BaseModel):
     username : str
 
 class Post(BaseModel):
-    # id : int
+    id : int
     title: str
     content :  str
     # owner_id : int
@@ -67,7 +67,7 @@ class vote(BaseModel):
 )
 
 class PostByUserId(BaseModel):
-    # id : int
+    id : int
     title: str
     content :  str
     # owner_id : int
