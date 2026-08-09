@@ -10,25 +10,28 @@ router = APIRouter(
      tags = ['post'] #in the swagger docs aall these functions will be under post tag
 )
 
-@router.get("/mypost/mypost")
+@router.get("/myposts/myposts")
 def get_own_post(current_user = Depends(oauth2.get_current_user), db : Session=Depends(get_db)):
-    res = (db.query(models.Post, func.count(models.Votes.post_id))
-    .join(models.Votes, models.Post.id==models.Votes.post_id, isouter=True)
+    res = (db.query(models.Post, func.count(models.Votes.posts_id))
+    .join(models.Votes, models.Post.id==models.Votes.posts_id, isouter=True)
     .filter(models.Post.owner_id==current_user.id).group_by(models.Post.id).all())
     return res
 
+#get all posts in db
 @router.get("/", response_model = List[schemas.PostByUserId2])  #without list it will only return one dic, so we need to use list
 def get_post(db : Session = Depends(get_db),  current_user : int = Depends(oauth2.get_current_user), limit : int = 10,
             search : Optional[str] = ""):
     # res = db.query(models.Post).filter(models.Post.title.contains(search)).limit(limit).all()
-    res=(db.query(models.Post, func.count(models.Votes.posts_id)).join(models.Votes, models.Votes.posts_id==models.Post.id,isouter=True)
-    .filter(models.Post.title.contains(search)).group_by(models.Post.id).limit(limit).all())
+    res=(db.query(models.Post, func.count(models.Votes.posts_id),models.Users.username).join(models.Votes, models.Votes.posts_id==models.Post.id,isouter=True)
+    .join(models.Users, models.Users.id==models.Post.owner_id)
+    .filter(models.Post.title.contains(search)).group_by(models.Post.id, models.Users.id).limit(limit).all())
 
     posts = []
     for r in res:
-        post_obj, count = r
+        post_obj, count, username = r
         data = schemas.PostByUserId.model_validate(post_obj).model_dump()
         data["count"] = count
+        data["username"] = username
         posts.append(data)
     return posts
 
