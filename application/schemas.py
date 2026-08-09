@@ -16,7 +16,7 @@ class ReturnOwner(BaseModel):
     username : str
 
 class Post(BaseModel):
-    id : int
+    # id : int
     title: str
     content :  str
     # owner_id : int
@@ -67,13 +67,17 @@ class vote(BaseModel):
 )
 
 class PostByUserId(BaseModel):
-    id : int
+    # id : int
     title: str
     content :  str
-    owner_id : int
+    # owner_id : int
     created_at : datetime
-    published : bool
+    # published : bool
     model_config = ConfigDict(from_attributes=True)
 
 class PostByUserId2(PostByUserId):
     count : int
+    username : str
+
+class PostByUserId3(PostByUserId):
+    count: int

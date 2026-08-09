@@ -10,12 +10,19 @@ router = APIRouter(
      tags = ['post'] #in the swagger docs aall these functions will be under post tag
 )
 
-@router.get("/myposts/myposts")
+@router.get("/myposts/myposts", response_model=List[schemas.PostByUserId3])
 def get_own_post(current_user = Depends(oauth2.get_current_user), db : Session=Depends(get_db)):
     res = (db.query(models.Post, func.count(models.Votes.posts_id))
     .join(models.Votes, models.Post.id==models.Votes.posts_id, isouter=True)
     .filter(models.Post.owner_id==current_user.id).group_by(models.Post.id).all())
-    return res
+    posts = []
+    for r in res:
+        post_obj, count= r
+        data = schemas.PostByUserId.model_validate(post_obj).model_dump()
+        data["count"] = count
+        posts.append(data)
+    return posts
+    
 
 #get all posts in db
 @router.get("/", response_model = List[schemas.PostByUserId2])  #without list it will only return one dic, so we need to use list
@@ -44,8 +51,9 @@ def get_posts_by_username(username : str, db : Session = Depends(get_db),  curre
                 detail = f"no owner, named : {username}"  #detail amd status_code is inbuilt
             )
         owner_id = owner.id
-        post = (db.query(models.Post, func.count(models.Votes.posts_id)).join(models.Votes, models.Post.id==models.Votes.posts_id)
+        post = (db.query(models.Post, func.count(models.Votes.posts_id)).join(models.Votes, models.Post.id==models.Votes.posts_id, isouter=True)
         .filter(models.Post.owner_id==owner.id).group_by(models.Post.id).all())
+        #is outer =true returns the posts that has zero likes(Null values) too
         if not post: #.all() in query returns empty list if not found
             raise HTTPException(
                             status_code = status.HTTP_404_NOT_FOUND,
