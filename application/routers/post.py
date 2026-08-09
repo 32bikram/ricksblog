@@ -10,17 +10,16 @@ router = APIRouter(
      tags = ['post'] #in the swagger docs aall these functions will be under post tag
 )
 
-@router.get("/myposts/myposts", response_model=List[schemas.PostByUserId])
+@router.get("/myposts/myposts", response_model=List[schemas.PostByUserId3])
 def get_own_post(current_user = Depends(oauth2.get_current_user), db : Session=Depends(get_db)):
     res = (db.query(models.Post, func.count(models.Votes.posts_id))
     .join(models.Votes, models.Post.id==models.Votes.posts_id, isouter=True)
     .filter(models.Post.owner_id==current_user.id).group_by(models.Post.id).all())
     posts = []
     for r in res:
-        post_obj, count, username = r
+        post_obj, count= r
         data = schemas.PostByUserId.model_validate(post_obj).model_dump()
         data["count"] = count
-        data["username"] = username
         posts.append(data)
     return posts
     
