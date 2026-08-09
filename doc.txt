@@ -1,0 +1,15 @@
+Depends() -
+Depends() is FastAPI's dependency injection mechanism. It tells FastAPI:
+"Before running this function, execute another function and give me its result."
+===============================================================================================
+yield db - 
+yield is used when we dont wanna close the function after return, we keep it paused till the function it sent
+the result to is done executing than start again. here after yield db we send the db to the function calling
+get_db but after sending we dont close it we pause it and when that function executes we come back and go to
+the finally part and close db.
+        # 1. Create db session
+        # 2. Give db to get_users()
+        # 3. Wait until get_users() finishes
+        # 4. Continue after yield
+        # 5. Close db
+========================================================================================================
