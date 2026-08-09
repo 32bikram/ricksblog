@@ -5,8 +5,8 @@ from typing import Annotated
 
 
 class BaseSchema(BaseModel):
-    title : str
-    content : str
+    title : str = Field(max_length=100)
+    content : str = Field(max_length=20000)
     published : bool
 
 class CreateSchema(BaseSchema):
