@@ -19,13 +19,21 @@ def vote(vote: schemas.vote, db : Session = Depends(database.get_db), current_us
             db.add(like_query)
             db.commit()
             db.refresh(like_query)
-            raise HTTPException(detail=f"you have liked the post with id : {vote.post_id}")
+            raise HTTPException(
+                status_code=status.HTTP_200_OK,
+                detail=f"you have liked the post with id : {vote.post_id}")
         else:
-            raise HTTPException(detail=f"you have already liked the post with id : {vote.post_id}")
+            raise HTTPException(
+                status_code = status.HTTP_208_ALREADY_REPORTED,
+                detail=f"you have already liked the post with id : {vote.post_id}")
     else:
         if vote_query.first() is None:
-            raise HTTPException(detail=f"you have already unliked the post with id : {vote.post_id}")
+            raise HTTPException(
+                status_code=status.HTTP_200_OK,
+                detail=f"you have already unliked the post with id : {vote.post_id}")
         else:
             vote_query.delete()
             db.commit()
-            raise HTTPException(detail=f"you have unliked the post with id : {vote.post_id}")
+            raise HTTPException(
+                status_code = status.HTTP_200_OK,
+                detail=f"you have unliked the post with id : {vote.post_id}")
