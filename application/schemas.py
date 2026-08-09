@@ -77,3 +77,4 @@ class PostByUserId(BaseModel):
 
 class PostByUserId2(PostByUserId):
     count : int
+    username : str
