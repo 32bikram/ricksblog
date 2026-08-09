@@ -42,7 +42,7 @@ def get_post(db : Session = Depends(get_db),  current_user : int = Depends(oauth
         posts.append(data)
     return posts
 
-@router.get("/{username}", response_model = List[schemas.PostByUserId2])
+@router.get("/{username}", response_model = List[schemas.PostByUserId3])
 def get_posts_by_username(username : str, db : Session = Depends(get_db),  current_user = Depends(oauth2.get_current_user)):  # converts the id coming as string in the url to int
         owner = db.query(models.Users).filter(models.Users.username == username).first()
         if owner == None:
