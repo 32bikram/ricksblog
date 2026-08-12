@@ -1,4 +1,4 @@
-# Rick's Blog
+# Rick's Blog[🔗](https://ricksblogfrontend-14d2.vercel.app/)
 
 A RESTful blog API built with **FastAPI**, **PostgreSQL**, and **SQLAlchemy**. Users can create accounts, log in with JWT-based authentication, publish and manage(Update, Delete) posts, and like/unlike other users' posts.
 
