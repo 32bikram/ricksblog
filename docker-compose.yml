@@ -1,0 +1,36 @@
+services:
+    api:
+        build: .
+        # container_namme: ricksblog_container
+        image: ricksblog:latest
+        depends_on:
+          - postgres
+        ports:
+            # - <port on localhost(ip of the specific server it will run)>:<port on container(port on uvicorn)>
+          - 8000:8000
+        volumes:
+          - ./:/usr/src/app:ro #for sync with local code changes, ro is not allowing docker to chnage anything
+        command: uvicorn application.main:app --host 0.0.0.0 --port 8000 --reload 
+        # env_file:
+        #   ./.env
+        environment:
+          - DATABASE_HOSTNAME=postgres #same as the postgressimage name
+          - DATABASE_PORT=5432
+          - DATABASE_PASSWORD=password123
+          - DATABASE_NAME=ricksblog
+          - DATABASE_USERNAME=postgres
+          - SECRET_KEY=09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf60a7b6e5f3b
+          - ALGORITHM=HS256
+          - ACCESS_TOKEN_EXPIRE_MINUTES=240
+
+    postgres:
+      image: postgres
+      environment:
+        - POSTGRES_PASSWORD=password123
+        - POSTGRES_DB=ricksblog
+      volumes:
+        - volumes_name_can_be_anything:/var/lib/postgresql
+
+volumes:
+    volumes_name_can_be_anything:
+    #the name taken from postgres volume name
