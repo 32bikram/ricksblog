@@ -1,0 +1,10 @@
+services:
+    api:
+        build: .
+        image: kiertolainen/ricksblog:latest
+        restart: unless-stopped
+        ports:
+          - 8000:8000
+        command: gunicorn application.main:app -w 4 -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:8000
+        env_file:
+          ./.env
