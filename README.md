@@ -118,3 +118,27 @@ The API will be available at `http://localhost:8000`, with interactive docs at `
 | POST   | `/votes`                        | Like (`dir=1`) or unlike (`dir=0`) a post | Yes             |
 
 Protected routes require an `Authorization: Bearer <token>` header, using the token returned from `/login`.
+### Docker
+
+The backend image is published on Docker Hub as [`kiertolainen/ricksblog:latest`](https://hub.docker.com/r/kiertolainen/ricksblog)
+
+Two Compose files are provided in the repo:
+
+- `docker-compose-dev.yml` — development setup
+- `docker-compose-prod.yml` — production setup
+
+Make sure your `.env` file (see the Backend section above) is present in the project root before running either one, then start the stack:
+
+```bash
+# Development
+docker compose -f docker-compose-dev.yml up -d
+
+# Production
+docker compose -f docker-compose-prod.yml up -d
+```
+
+To pull the image directly instead of building from source:
+
+```bash
+docker pull kiertolainen/pokedeqs:latest
+```
