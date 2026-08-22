@@ -118,7 +118,7 @@ The API will be available at `http://localhost:8000`, with interactive docs at `
 | POST   | `/votes`                        | Like (`dir=1`) or unlike (`dir=0`) a post | Yes             |
 
 Protected routes require an `Authorization: Bearer <token>` header, using the token returned from `/login`.
-### Docker
+## Docker
 
 The backend image is published on Docker Hub as [`kiertolainen/ricksblog:latest`](https://hub.docker.com/r/kiertolainen/ricksblog)
 
