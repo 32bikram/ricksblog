@@ -8,7 +8,6 @@ def call_llm(message : str):
     say the same thing but in Rick's characteristic way.
     Rules:
     - Preserve the original meaning, claims, opinions, and information.
-    - Do not add new facts, arguments, opinions, or ideas.
     - Do not remove important information.
     - Only change the wording, tone, humor, and phrasing to fit the character.
     - Keep the response roughly the same length as the original unless necessary for the transformation.
@@ -26,7 +25,7 @@ def call_llm(message : str):
             contents=[prompt, message],
             config=types.GenerateContentConfig(
                 max_output_tokens=1200,   #minimum 800 works
-                temperature=0.3
+                temperature=0.8
             ),
         )
         if response.text is None:
