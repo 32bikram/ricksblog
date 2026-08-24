@@ -14,7 +14,7 @@ router = APIRouter(
 def get_own_post(current_user = Depends(oauth2.get_current_user), db : Session=Depends(get_db)):
     res = (db.query(models.Post, func.count(models.Votes.posts_id))
     .join(models.Votes, models.Post.id==models.Votes.posts_id, isouter=True)
-    .filter(models.Post.owner_id==current_user.id).group_by(models.Post.id).all())
+    .filter(models.Post.owner_id==current_user.id).group_by(models.Post.id).order_by(models.Post.created_at.desc()).all())
     posts = []
     for r in res:
         post_obj, count= r
@@ -31,7 +31,7 @@ def get_post(db : Session = Depends(get_db),  current_user : int = Depends(oauth
     # res = db.query(models.Post).filter(models.Post.title.contains(search)).limit(limit).all()
     res=(db.query(models.Post, func.count(models.Votes.posts_id),models.Users.username).join(models.Votes, models.Votes.posts_id==models.Post.id,isouter=True)
     .join(models.Users, models.Users.id==models.Post.owner_id)
-    .filter(models.Post.title.contains(search)).group_by(models.Post.id, models.Users.id).limit(limit).all())
+    .filter(models.Post.title.contains(search)).group_by(models.Post.id, models.Users.id).order_by(models.Post.created_at.desc()).limit(limit).all())
 
     posts = []
     for r in res:
@@ -52,7 +52,7 @@ def get_posts_by_username(username : str, db : Session = Depends(get_db),  curre
             )
         owner_id = owner.id
         post = (db.query(models.Post, func.count(models.Votes.posts_id)).join(models.Votes, models.Post.id==models.Votes.posts_id, isouter=True)
-        .filter(models.Post.owner_id==owner.id).group_by(models.Post.id).all())
+        .filter(models.Post.owner_id==owner.id).group_by(models.Post.id).order_by(models.Post.created_at.desc()).all())
         #is outer =true returns the posts that has zero likes(Null values) too
         if not post: #.all() in query returns empty list if not found
             raise HTTPException(
