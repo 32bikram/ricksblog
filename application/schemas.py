@@ -81,3 +81,6 @@ class PostByUserId2(PostByUserId):
 
 class PostByUserId3(PostByUserId):
     count: int
+
+class Llm_validator(BaseModel):
+    message : str

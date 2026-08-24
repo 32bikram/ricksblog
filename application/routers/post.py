@@ -2,7 +2,7 @@ from typing import List, Optional
 from fastapi import Response, status, HTTPException, Depends, APIRouter
 from sqlalchemy.orm import Session
 from sqlalchemy import func
-from .. import models, schemas, oauth2
+from .. import models, schemas, oauth2, makethepost
 from ..database import get_db
 
 router = APIRouter(
@@ -70,6 +70,17 @@ def get_posts_by_username(username : str, db : Session = Depends(get_db),  curre
  
 @router.post("/", status_code= status.HTTP_201_CREATED, response_model = schemas.Post)
 def create_post(post : schemas.CreateSchema,db : Session = Depends(get_db), current_user : int = Depends(oauth2.get_current_user)):
+    write_up = makethepost.call_llm(post.content)
+    try:
+        write_up = schemas.Llm_validator.model_validate_json(write_up)
+    except:
+         print("gemini returned shit")
+         raise HTTPException(
+              status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+              #incase gemeini doesnt return proper json format
+              detail = "Please try again"
+         )
+    post.content = write_up.message
     new_post = models.Post(owner_id = current_user.id, **post.model_dump()) #we are passing owner_id directly 
     #insertion gets passed to constructor that builds the table, thats why we need to decrypt it before passing to the class to create table
     db.add(new_post)
@@ -99,27 +110,27 @@ def delete_post(id : int, db : Session = Depends(get_db), current_user : int = D
             detail = f"why are you trying to delete others post?"
         )
 
-@router.put("/{id}", response_model = schemas.Post)
-def update_post(id : int, post : schemas.CreateSchema, db : Session = Depends(get_db),  current_user : int = Depends(oauth2.get_current_user)):
-    res = db.query(models.Post).filter(models.Post.id == id) #it doesnt update it just returns matched rows
+# @router.put("/{id}", response_model = schemas.Post)
+# def update_post(id : int, post : schemas.CreateSchema, db : Session = Depends(get_db),  current_user : int = Depends(oauth2.get_current_user)):
+#     res = db.query(models.Post).filter(models.Post.id == id) #it doesnt update it just returns matched rows
 
-    if(res.first() == None):
+#     if(res.first() == None):
     
-        raise HTTPException(
-            status_code = status.HTTP_404_NOT_FOUND,
-            detail = f"post with id : {id} does not exist"
-        )
+#         raise HTTPException(
+#             status_code = status.HTTP_404_NOT_FOUND,
+#             detail = f"post with id : {id} does not exist"
+#         )
     
-    if res.first().owner_id != current_user.id:
-        raise HTTPException(
-        status_code = status.HTTP_403_FORBIDDEN,
-        detail = f"cant update others post"
-        )
+#     if res.first().owner_id != current_user.id:
+#         raise HTTPException(
+#         status_code = status.HTTP_403_FORBIDDEN,
+#         detail = f"cant update others post"
+#         )
  
-    res.update(post.model_dump()) 
-        #"Take the rows matched by the db.query and update them."
-        #insertion gets passed to constructor thats why we need to decrypt it
-        #but update directly gets to sqlalchemy and it only works with dictionary
-    db.commit()
-        #res is a query object, res2 is a model object
-    return res.first()
+#     res.update(post.model_dump()) 
+#         #"Take the rows matched by the db.query and update them."
+#         #insertion gets passed to constructor thats why we need to decrypt it
+#         #but update directly gets to sqlalchemy and it only works with dictionary
+#     db.commit()
+#         #res is a query object, res2 is a model object
+#     return res.first()
